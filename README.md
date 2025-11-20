@@ -38,3 +38,81 @@ A full tracking demo on real traffic footage (processed in MATLAB for visualizat
 - **Green circles**: Active & confirmed tracks  
 - **Yellow circles**: Newly detected objects (before association)  
 - **Red lines**: UKF predicted trajectory using sigma points
+
+
+
+
+
+## algoritm
+
+* **det** – Moving corner detection
+* **predict** – Position prediction using a Kalman Filter
+* **corr** – Corner matching using Normalized Cross-Correlation (NCC)
+
+
+### 1. **det (Detection)**
+
+This stage identifies moving corner points in the frame.
+
+### 2. **predict (Kalman Filter Prediction)**
+
+Estimates the expected location of each tracked point in the next frame using a Kalman filter.
+
+### 3. **corr (Correlation / NCC)**
+
+Searches for the corresponding moving corner in the current frame by measuring similarity using the NCC metric.
+
+---
+
+## Initial Latency Analysis
+
+The detection and correlation stages dominate the processing time:
+
+* **det:** 6,403k cycles
+* **corr:** 9,566k cycles
+
+Running at 20 MHz:
+
+```
+(6,403k + 9,566k) × 50 ns = 796 ms
+```
+
+This results in a throughput of approximately **1 frame per second**.
+
+---
+
+## Latency Optimization Techniques
+
+### **1. Motion Filtering Before Corner Detection**
+
+Before checking whether a point is a corner, its motion is evaluated.
+Only **5%** of all points are identified as moving:
+
+```
+6,403k × 0.05 = 320k cycles
+```
+
+### **2. Correlation Row Pruning Through Early Rejection**
+
+During NCC evaluation, if the similarity of a point in one row drops below 50%, subsequent points in that row are skipped, since none of them can exceed 90% correlation.
+
+This reduces the evaluation to **7%** of the original operations:
+
+```
+9,566k × 0.07 = 669k cycles
+```
+
+---
+
+## Final Latency After Optimization
+
+```
+(320k + 669k) × 50 ns = 50 ms
+```
+
+This corresponds to a throughput of approximately **20 frames per second** 
+
+---
+
+
+
