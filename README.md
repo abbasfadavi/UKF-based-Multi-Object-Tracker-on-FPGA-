@@ -7,7 +7,6 @@ The core of the tracker is an **Unscented Kalman Filter (UKF)** with constant ve
 
 Real-time performance: **~15 FPS** on 1080p video streams (xc7k410t-ffg900-2).
 
-https://github.com/user/assets/123456789/traffic_demo.mp4
 ### Demo Video  
 A full tracking demo on real traffic footage (processed in MATLAB for visualization, actual tracking runs 100% on FPGA):
 
